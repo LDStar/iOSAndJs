@@ -66,6 +66,7 @@
      iOSToJs()这个是JS中方法的名称
      具体怎么定义双方去协调
      */
+    
     [_wb evaluateJavaScript:@"iOSToJs()" completionHandler:^(id _Nullable obj, NSError * _Nullable error) {
         //obj是JS return回来的值
     }];
