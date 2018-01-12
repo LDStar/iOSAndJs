@@ -7,7 +7,6 @@
 //
 
 #import "ViewController.h"
-#import <WebKit/WebKit.h>
 
 @interface ViewController ()<WKUIDelegate,WKNavigationDelegate,UIScrollViewDelegate,WKScriptMessageHandler>
 
@@ -21,7 +20,6 @@
     [super viewDidLoad];
     [self createWB];
     [self createBtn];
-    
 }
 
 -(void)createWB{
@@ -30,7 +28,7 @@
     config.userContentController = [[WKUserContentController alloc] init];
     // 注入JS对象名称AppModel，当JS通过AppModel来调用时，
     // 我们可以在WKScriptMessageHandler代理中接收到
-    [config.userContentController addScriptMessageHandler:self name:@"AppModel"];
+    [config.userContentController addScriptMessageHandler:[[WeakScriptMessageDelegate alloc]initWithDelegate:self] name:@"AppModel"];
     
     CGRect wbFrame = CGRectMake(0, 0, self.view.frame.size.width, self.view.frame.size.height-100);
     _wb = [[WKWebView alloc] initWithFrame:wbFrame configuration:config];
@@ -87,9 +85,8 @@
         NSLog(@"我做type是1的操作");
     }else if ([type isEqualToString:@"2"]){
         NSLog(@"我做type是2的操作");
+        [self dismissViewControllerAnimated:YES completion:nil];
     }
-    
-    
     
 }
 /**
@@ -105,5 +102,35 @@
     
 }
 
+-(void)dealloc{
+    
+    //这个目的是释放WeakScriptMessageDelegate
+    [[_wb configuration].userContentController removeScriptMessageHandlerForName:@"AppModel"];
+
+    NSLog(@"webview dealloc");
+}
+
+
+@end
+
+@implementation WeakScriptMessageDelegate
+
+- (instancetype)initWithDelegate:(id<WKScriptMessageHandler>)scriptDelegate
+{
+    self = [super init];
+    if (self) {
+        _scriptDelegate = scriptDelegate;
+    }
+    return self;
+}
+
+- (void)userContentController:(WKUserContentController *)userContentController didReceiveScriptMessage:(WKScriptMessage *)message
+{
+    [self.scriptDelegate userContentController:userContentController didReceiveScriptMessage:message];
+}
+
+-(void)dealloc{
+    NSLog(@"WeakScriptMessageDelegate dealloc");
+}
 
 @end

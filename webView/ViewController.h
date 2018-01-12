@@ -7,9 +7,18 @@
 //
 
 #import <UIKit/UIKit.h>
-
+#import <WebKit/WebKit.h>
 @interface ViewController : UIViewController
 
+
+@end
+
+//添加这个代理的目的是避免webview返回后不释放
+@interface WeakScriptMessageDelegate : NSObject<WKScriptMessageHandler>
+
+@property (nonatomic, weak) id<WKScriptMessageHandler> scriptDelegate;
+
+- (instancetype)initWithDelegate:(id<WKScriptMessageHandler>)scriptDelegate;
 
 @end
 
